@@ -31,3 +31,10 @@ captures/
 *.jks
 *.keystore
 release/
+
+# ============ 外部参考数据（夸克网盘下载，体积大，不进版本库） ============
+# 仅保留目录结构与说明文件，下载的大文件不进 Git
+data/**
+!data/**
+!data/README.md
+!data/**/.gitkeep
