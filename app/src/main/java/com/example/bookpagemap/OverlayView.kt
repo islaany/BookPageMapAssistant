@@ -27,7 +27,7 @@ class OverlayView @JvmOverloads constructor(
     var overlayLayoutParams: WindowManager.LayoutParams? = null
 
     private val binding: OverlayViewBinding =
-        OverlayViewBinding.inflate(LayoutInflater.from(context), this, true)
+        OverlayViewBinding.inflate(LayoutInflater.from(context), this)
 
     init {
         // 默认透明度 0.5
