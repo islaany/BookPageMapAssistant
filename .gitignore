@@ -1,0 +1,33 @@
+# ============ Android 构建产物 ============
+*.apk
+*.aar
+*.war
+*.class
+*.log
+build/
+*/build/
+.externalNativeBuild/
+.cxx/
+
+# ============ Gradle ============
+.gradle/
+# 保留 gradle wrapper 的 jar（保证他人无需预装 Gradle 即可构建）
+!gradle/wrapper/gradle-wrapper.jar
+
+# ============ 本地环境（机器相关，勿提交） ============
+local.properties
+gradle.properties.local
+
+# ============ IDE / OS ============
+.idea/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+Thumbs.db
+captures/
+
+# ============ 签名 / 密钥 ============
+*.jks
+*.keystore
+release/
