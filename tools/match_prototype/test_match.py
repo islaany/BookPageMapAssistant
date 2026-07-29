@@ -4,8 +4,9 @@
 ----
   python test_match.py --dir samples          # 测试 samples 下所有图
   python test_match.py --query samples/x.jpg  # 单张
-  python test_match.py --preprocess canny     # 换预处理（gray/binary/canny/blur）
-  python test_match.py --topk 5               # 输出 top5 候选
+  python test_match.py --preprocess binary   # 换预处理（gray/binary/canny/blur）
+  python test_match.py --mode shape          # 使用形状/Hu 矩匹配（默认 orb）
+  python test_match.py --topk 5              # 输出 top5 候选
 
 输出每张查询图的：命中小抄路径、置信度(score)、每一层决策与候选、叶子 top。
 把 score 与候选排序贴给助手，即可判断匹配度好坏、决定要不要调算法。
@@ -26,10 +27,13 @@ def main():
     ap.add_argument("--dir", default="samples", help="测试图目录（默认 samples）")
     ap.add_argument("--preprocess", default="gray",
                     choices=["gray", "binary", "canny", "blur"])
+    ap.add_argument("--mode", default="orb",
+                    choices=["orb", "shape"],
+                    help="匹配模式：orb=特征点（默认），shape=二值轮廓/Hu矩")
     ap.add_argument("--topk", type=int, default=3, help="每层/叶子输出前几名")
     args = ap.parse_args()
 
-    matcher = ShapeMatcher(MAP_ROOTS, preprocess=args.preprocess)
+    matcher = ShapeMatcher(MAP_ROOTS, preprocess=args.preprocess, mode=args.mode)
 
     queries = []
     if args.query:
