@@ -8,19 +8,20 @@
         android:orientation="vertical"
         android:background="@android:color/transparent">
 
-        <!-- 地图图片：默认透明度 0.5，可拖动 -->
+        <!-- 地图图片：默认透明度 0.5，可拖动；保持原始比例居中显示 -->
         <ImageView
             android:id="@+id/iv_map"
-            android:layout_width="280dp"
-            android:layout_height="200dp"
-            android:scaleType="fitXY"
+            android:layout_width="300dp"
+            android:layout_height="400dp"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true"
             android:src="@drawable/map_overlay"
             android:background="@android:color/transparent" />
 
         <!-- 透明度调节 -->
         <SeekBar
             android:id="@+id/sb_opacity"
-            android:layout_width="280dp"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:max="100"
             android:progress="50" />
