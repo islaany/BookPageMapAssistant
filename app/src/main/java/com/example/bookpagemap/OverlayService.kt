@@ -8,9 +8,15 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import android.view.Gravity
 import android.view.WindowManager
 import androidx.core.app.NotificationCompat
+import java.io.File
+import java.io.PrintWriter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * 参考 Quasar 的 OverlayService：
@@ -26,28 +32,36 @@ class OverlayService : Service() {
     override fun onCreate() {
         super.onCreate()
         // 必须先成为前台服务，否则 addView 也可能被回收
-        startForeground(NOTIFICATION_ID, buildNotification())
+        try {
+            startForeground(NOTIFICATION_ID, buildNotification())
+        } catch (e: Exception) {
+            logCrash("startForeground", e)
+        }
 
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
 
-        overlayView = OverlayView(this).apply {
-            val lp = WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                // 系统级覆盖层类型（Android 8.0+ 唯一合法悬浮窗类型）
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                // 不抢焦点 + 窗口外的触摸穿透到下层（游戏）
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-                PixelFormat.TRANSLUCENT
-            )
-            lp.gravity = Gravity.TOP or Gravity.START
-            lp.x = 100
-            lp.y = 250
+        try {
+            overlayView = OverlayView(this).apply {
+                val lp = WindowManager.LayoutParams(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    // 系统级覆盖层类型（Android 8.0+ 唯一合法悬浮窗类型）
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                    // 不抢焦点 + 窗口外的触摸穿透到下层（游戏）
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                    PixelFormat.TRANSLUCENT
+                )
+                lp.gravity = Gravity.TOP or Gravity.START
+                lp.x = 100
+                lp.y = 250
 
-            this.overlayLayoutParams = lp
-            this.windowManager = windowManager
-            windowManager?.addView(this, lp)
+                this.overlayLayoutParams = lp
+                this.windowManager = windowManager
+                windowManager?.addView(this, lp)
+            }
+        } catch (e: Exception) {
+            logCrash("addView", e)
         }
     }
 
@@ -80,6 +94,24 @@ class OverlayService : Service() {
             .setContentText("地图覆盖层运行中")
             .setSmallIcon(R.drawable.ic_overlay)
             .build()
+    }
+
+    /** 把异常写到 App 私有目录的 overlay_crash.log，方便回传定位（不会弹窗） */
+    private fun logCrash(where: String, e: Exception) {
+        Log.e("OverlayService", "crash at $where", e)
+        try {
+            val dir = getExternalFilesDir(null) ?: filesDir
+            val f = File(dir, "overlay_crash.log")
+            PrintWriter(f, Charsets.UTF_8).use { pw ->
+                pw.println(
+                    "${SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())} " +
+                        "crash at $where"
+                )
+                e.printStackTrace(pw)
+            }
+        } catch (_: Exception) {
+            // 写日志失败也别再抛异常
+        }
     }
 
     companion object {
